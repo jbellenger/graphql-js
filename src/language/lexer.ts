@@ -7,6 +7,21 @@ import type { Source } from './source.js';
 import { TokenKind } from './tokenKind.js';
 
 /**
+ * Parser supports parsing multiple Source types, which may have differing
+ * Lexer classes. This is used for schema coordinates which has its own distinct
+ * SchemaCoordinateLexer class.
+ */
+export interface LexerInterface {
+  source: Source;
+  lastToken: Token;
+  token: Token;
+  line: number;
+  lineStart: number;
+  advance: () => Token;
+  lookahead: () => Token;
+}
+
+/**
  * Given a Source object, creates a Lexer for that source.
  * A Lexer is a stateful stream generator in that every time
  * it is advanced, it returns the next token in the Source. Assuming the
@@ -14,7 +29,7 @@ import { TokenKind } from './tokenKind.js';
  * EOF, after which the lexer will repeatedly return the same EOF token
  * whenever called.
  */
-export class Lexer {
+export class Lexer implements LexerInterface {
   source: Source;
 
   /**
@@ -150,8 +165,13 @@ function isTrailingSurrogate(code: number): boolean {
  *
  * Printable ASCII is printed quoted, while other points are printed in Unicode
  * code point form (ie. U+1234).
+ *
+ * @internal
  */
-function printCodePointAt(lexer: Lexer, location: number): string {
+export function printCodePointAt(
+  lexer: LexerInterface,
+  location: number,
+): string {
   const code = lexer.source.body.codePointAt(location);
 
   if (code === undefined) {
@@ -168,9 +188,11 @@ function printCodePointAt(lexer: Lexer, location: number): string {
 
 /**
  * Create a token with line and column location information.
+ *
+ * @internal
  */
-function createToken(
-  lexer: Lexer,
+export function createToken(
+  lexer: LexerInterface,
   kind: TokenKind,
   start: number,
   end: number,
@@ -846,8 +868,10 @@ function readBlockString(lexer: Lexer, start: number): Token {
  * Name ::
  *   - NameStart NameContinue* [lookahead != NameContinue]
  * ```
+ *
+ * @internal
  */
-function readName(lexer: Lexer, start: number): Token {
+export function readName(lexer: LexerInterface, start: number): Token {
   const body = lexer.source.body;
   const bodyLength = body.length;
   let position = start + 1;

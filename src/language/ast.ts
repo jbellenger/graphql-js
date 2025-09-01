@@ -181,7 +181,12 @@ export type ASTNode =
   | InterfaceTypeExtensionNode
   | UnionTypeExtensionNode
   | EnumTypeExtensionNode
-  | InputObjectTypeExtensionNode;
+  | InputObjectTypeExtensionNode
+  | TypeCoordinateNode
+  | MemberCoordinateNode
+  | ArgumentCoordinateNode
+  | DirectiveCoordinateNode
+  | DirectiveArgumentCoordinateNode;
 
 /**
  * Utility type listing all nodes indexed by their kind.
@@ -287,6 +292,13 @@ export const QueryDocumentKeys: {
   UnionTypeExtension: ['name', 'directives', 'types'],
   EnumTypeExtension: ['name', 'directives', 'values'],
   InputObjectTypeExtension: ['name', 'directives', 'fields'],
+
+  // Schema Coordinates
+  TypeCoordinate: ['name'],
+  MemberCoordinate: ['name', 'memberName'],
+  ArgumentCoordinate: ['name', 'fieldName', 'argumentName'],
+  DirectiveCoordinate: ['name'],
+  DirectiveArgumentCoordinate: ['name', 'argumentName'],
 };
 
 const kindValues = new Set<string>(Object.keys(QueryDocumentKeys));
@@ -761,4 +773,47 @@ export interface InputObjectTypeExtensionNode {
   readonly name: NameNode;
   readonly directives?: ReadonlyArray<ConstDirectiveNode> | undefined;
   readonly fields?: ReadonlyArray<InputValueDefinitionNode> | undefined;
+}
+
+/** Schema Coordinates */
+
+export type SchemaCoordinateNode =
+  | TypeCoordinateNode
+  | MemberCoordinateNode
+  | ArgumentCoordinateNode
+  | DirectiveCoordinateNode
+  | DirectiveArgumentCoordinateNode;
+
+export interface TypeCoordinateNode {
+  readonly kind: typeof Kind.TYPE_COORDINATE;
+  readonly loc?: Location;
+  readonly name: NameNode;
+}
+
+export interface MemberCoordinateNode {
+  readonly kind: typeof Kind.MEMBER_COORDINATE;
+  readonly loc?: Location;
+  readonly name: NameNode;
+  readonly memberName: NameNode;
+}
+
+export interface ArgumentCoordinateNode {
+  readonly kind: typeof Kind.ARGUMENT_COORDINATE;
+  readonly loc?: Location;
+  readonly name: NameNode;
+  readonly fieldName: NameNode;
+  readonly argumentName: NameNode;
+}
+
+export interface DirectiveCoordinateNode {
+  readonly kind: typeof Kind.DIRECTIVE_COORDINATE;
+  readonly loc?: Location;
+  readonly name: NameNode;
+}
+
+export interface DirectiveArgumentCoordinateNode {
+  readonly kind: typeof Kind.DIRECTIVE_ARGUMENT_COORDINATE;
+  readonly loc?: Location;
+  readonly name: NameNode;
+  readonly argumentName: NameNode;
 }
