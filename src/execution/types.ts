@@ -162,9 +162,8 @@ export interface CompletedResult {
 }
 
 export interface FormattedCompletedResult {
-  path: ReadonlyArray<string | number>;
-  label?: string;
-  errors?: ReadonlyArray<GraphQLError>;
+  id: string;
+  errors?: ReadonlyArray<GraphQLFormattedError>;
 }
 
 export function isPendingExecutionGroup(
